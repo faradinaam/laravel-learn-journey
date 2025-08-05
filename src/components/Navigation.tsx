@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, X, Globe, User, ChevronDown } from 'lucide-react';
+import { Menu, X, Globe, User, ChevronDown, LogOut } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,6 +12,13 @@ import {
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/auth');
+  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border/50 transition-travel">
@@ -79,13 +88,35 @@ const Navigation = () => {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <Button variant="ghost" size="sm">
-              <User className="h-4 w-4 mr-2" />
-              Login
-            </Button>
-            <Button size="sm" className="gradient-ocean text-white hover:shadow-travel-medium transition-spring">
-              Sign Up
-            </Button>
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm">
+                    <User className="h-4 w-4 mr-2" />
+                    Account
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem>Profile</DropdownMenuItem>
+                  <DropdownMenuItem>Bookings</DropdownMenuItem>
+                  <DropdownMenuItem>Settings</DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleSignOut}>
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <>
+                <Button variant="ghost" size="sm" onClick={() => navigate('/auth')}>
+                  <User className="h-4 w-4 mr-2" />
+                  Login
+                </Button>
+                <Button size="sm" className="gradient-ocean text-white hover:shadow-travel-medium transition-spring" onClick={() => navigate('/auth')}>
+                  Sign Up
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -122,13 +153,22 @@ const Navigation = () => {
               </a>
               <div className="pt-4 pb-2 border-t border-border/50">
                 <div className="flex items-center px-3 py-2">
-                  <Button variant="ghost" size="sm" className="mr-2">
-                    <User className="h-4 w-4 mr-2" />
-                    Login
-                  </Button>
-                  <Button size="sm" className="gradient-ocean text-white">
-                    Sign Up
-                  </Button>
+                  {user ? (
+                    <Button variant="ghost" size="sm" onClick={handleSignOut}>
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Sign Out
+                    </Button>
+                  ) : (
+                    <>
+                      <Button variant="ghost" size="sm" className="mr-2" onClick={() => navigate('/auth')}>
+                        <User className="h-4 w-4 mr-2" />
+                        Login
+                      </Button>
+                      <Button size="sm" className="gradient-ocean text-white" onClick={() => navigate('/auth')}>
+                        Sign Up
+                      </Button>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
